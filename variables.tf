@@ -233,3 +233,21 @@ variable "lb" {
   type        = any
   default     = null
 }
+
+variable "cluster_patch_assessment_mode" {
+  description = "(Optional) Specifies the mode of VM Guest Patching for the Virtual Machine. Possible values are AutomaticByPlatform or ImageDefault. Defaults to ImageDefault."
+  type        = string
+  default     = null
+}
+
+variable "cluster_patch_mode" {
+  description = "(Optional) Specifies the mode of in-guest patching to this Windows Virtual Machine. Possible values are Manual, AutomaticByOS and AutomaticByPlatform. Defaults to AutomaticByOS."
+  type        = string
+  default     = null
+}
+
+variable "cluster_enable_automatic_updates" {
+  description = "(Optional) Specifies if Automatic Updates are Enabled for the Windows Virtual Machine. Changing this forces a new resource to be created."
+  type        = bool
+  default     = true
+}

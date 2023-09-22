@@ -30,9 +30,9 @@ module "VMs" {
   dependancyAgent          = var.dependancyAgent
   shutdownConfig           = var.shutdownConfig
   tags                     = var.tags
-  enable_automatic_updates = lookup(each.value, "enable_automatic_updates", true)
-  patch_assessment_mode    = lookup(each.value, "patch_assessment_mode", null)
-  patch_mode               = lookup(each.value, "patch_mode", null)
+  enable_automatic_updates = var.cluster_enable_automatic_updates
+  patch_assessment_mode    = var.cluster_patch_assessment_mode
+  patch_mode               = var.cluster_patch_mode
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "LB_VMs" {
