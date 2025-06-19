@@ -1,5 +1,5 @@
 module "VMs" {
-  source = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-windows_virtual_machine?ref=v3.0.7"
+  source = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-windows_virtual_machine?ref=v3.0.14"
   # source = "/home/bernard/azdo/modules/terraform-azurerm-caf-windows_virtual_machine"
   for_each = var.cluster_members
 
