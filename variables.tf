@@ -226,3 +226,9 @@ variable "as_name" {
   type        = string
   default     = null
 }
+
+variable "bypass_platform_safety_checks_on_user_schedule_enabled" {
+  description = "(Optional) Specifies whether to skip platform scheduled patching when a user schedule is associated with the VM. Defaults to false to preserve this module's pre-v3.1.0 child module behavior; the child windows_virtual_machine module itself defaults this to true. Set to true explicitly to opt in to bypassing platform safety checks."
+  type        = bool
+  default     = false
+}
