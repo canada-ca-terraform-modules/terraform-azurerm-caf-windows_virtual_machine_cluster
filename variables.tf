@@ -3,7 +3,7 @@ variable "tags" {
   type        = map(string)
   default = {
     "exampleTag1" = "SomeValue1"
-    "exampleTag1" = "SomeValue2"
+    "exampleTag2" = "SomeValue2"
   }
 }
 variable "env" {
@@ -27,49 +27,16 @@ variable "subnet" {
   description = "subnet object to which the VM NIC will connect to"
   type        = any
 }
-# variable "nic_ip_configuration_1" {
-#   description = "Defines how a private IP address is assigned. Options are Static or Dynamic. In case of Static also specifiy the desired privat IP address. See variable.tf file for example"
-#   type = object({
-#     private_ip_address            = list(string)
-#     private_ip_address_allocation = list(string)
-#   })
-#   default = {
-#     private_ip_address            = [null]
-#     private_ip_address_allocation = ["Dynamic"]
-#   }
-#   /*
-#     Example variable for a NIC with 2 staticly assigned IP and one dynamic:
-#     ```hcl
-#     nic_ip_configuration = {
-#       private_ip_address            = ["10.20.30.42","10.20.40.43",null]
-#       private_ip_address_allocation = ["Static","Static","Dynamic"]
-#     }
-#     ```
-#   */
-# }
-# variable "nic_ip_configuration_2" {
-#   description = "Defines how a private IP address is assigned. Options are Static or Dynamic. In case of Static also specifiy the desired privat IP address. See variable.tf file for example"
-#   type = object({
-#     private_ip_address            = list(string)
-#     private_ip_address_allocation = list(string)
-#   })
-#   default = {
-#     private_ip_address            = [null]
-#     private_ip_address_allocation = ["Dynamic"]
-#   }
-#   /*
-#     Example variable for a NIC with 2 staticly assigned IP and one dynamic:
-#     ```hcl
-#     nic_ip_configuration = {
-#       private_ip_address            = ["10.20.30.42","10.20.40.43",null]
-#       private_ip_address_allocation = ["Static","Static","Dynamic"]
-#     }
-#     ```
-#   */
-# }
+
+variable "use_nic_nsg" {
+  description = "Should an NSG be created for the VM nic"
+  type        = bool
+  default     = true
+}
+
 variable "cluster_members" {
   description = "Config of each cluster member"
-  type = any
+  type        = any
 }
 variable "public_ip" {
   description = "Should the VM be assigned public IP(s). True or false."
@@ -82,7 +49,7 @@ variable "priority" {
   default     = "Regular"
 }
 variable "license_type" {
-  description = " (Optional) Specifies the BYOL Type for this Virtual Machine. Possible values are RHEL_BYOS and SLES_BYOS."
+  description = "(Optional) Specifies the BYOL Type for this Virtual Machine. Possible values are RHEL_BYOS and SLES_BYOS."
   type        = string
   default     = null
 }
@@ -95,6 +62,7 @@ variable "admin_password" {
   description = "Password of the VM admin account"
   type        = string
   default     = null
+  sensitive   = true
 }
 variable "vm_size" {
   description = "Specifies the size of the Virtual Machine. Eg: Standard_F4"
@@ -109,14 +77,14 @@ variable "storage_image_reference" {
     version   = string
   })
   default = {
-    publisher = "RedHat",
-    offer     = "RHEL",
-    sku       = "7.4",
+    publisher = "MicrosoftWindowsServer",
+    offer     = "WindowsServer",
+    sku       = "2022-Datacenter",
     version   = "latest"
   }
 }
 variable "storage_os_disk" {
-  description = "This block describe the parameters for the OS disk. Refer to https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine#os_disk for more details."
+  description = "This block describe the parameters for the OS disk. Refer to https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/windows_virtual_machine#os_disk for more details."
   type = object({
     caching       = string
     create_option = string
@@ -205,27 +173,27 @@ variable "shutdownConfig" {
 }
 
 variable "platform_fault_domain_count" {
-  description = "(Optional) Specifies the number of update domains that are used. Defaults to 5. Changing this forces a new resource to be created."
-  type = string
-  default = "2"
+  description = "(Optional) Specifies the number of fault domains that are used. Defaults to 2. Changing this forces a new resource to be created."
+  type        = number
+  default     = 2
 }
 
 variable "platform_update_domain_count" {
-  description = "(Optional) Specifies the number of fault domains that are used. Defaults to 3. Changing this forces a new resource to be created."
-  type = string
-  default = "3"
+  description = "(Optional) Specifies the number of update domains that are used. Defaults to 3. Changing this forces a new resource to be created."
+  type        = number
+  default     = 3
 }
 
 variable "platform_managed" {
   description = "(Optional) Specifies whether the availability set is managed or not. Possible values are true (to specify aligned) or false (to specify classic)."
-  type = bool
-  default = true
+  type        = bool
+  default     = true
 }
-  
+
 variable "boot_diagnostic" {
   description = "(Optional)"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "lb" {
@@ -250,4 +218,11 @@ variable "cluster_enable_automatic_updates" {
   description = "(Optional) Specifies if Automatic Updates are Enabled for the Windows Virtual Machine. Changing this forces a new resource to be created."
   type        = bool
   default     = true
+}
+
+# --- Pattern 12: optional override for the auto-generated availability set name ---
+variable "as_name" {
+  description = "(Optional) Override the auto-generated availability set name. Defaults to '{env}{serverType}-{userDefinedString}-as'."
+  type        = string
+  default     = null
 }

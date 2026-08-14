@@ -1,6 +1,5 @@
 module "VMs" {
-  source = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-windows_virtual_machine?ref=v3.0.14"
-  # source = "/home/bernard/azdo/modules/terraform-azurerm-caf-windows_virtual_machine"
+  source   = "github.com/canada-ca-terraform-modules/terraform-azurerm-caf-windows_virtual_machine?ref=v3.1.0"
   for_each = var.cluster_members
 
   env                      = var.env
@@ -20,6 +19,7 @@ module "VMs" {
   storage_image_reference  = var.storage_image_reference
   storage_os_disk          = var.storage_os_disk
   os_managed_disk_type     = var.os_managed_disk_type
+  data_managed_disk_type   = var.data_managed_disk_type
   plan                     = var.plan
   availability_set_id      = azurerm_availability_set.availability_set.id
   custom_data              = var.custom_data
@@ -29,6 +29,7 @@ module "VMs" {
   encryptDisks             = var.encryptDisks
   dependancyAgent          = var.dependancyAgent
   shutdownConfig           = var.shutdownConfig
+  use_nic_nsg              = var.use_nic_nsg
   tags                     = var.tags
   enable_automatic_updates = var.cluster_enable_automatic_updates
   patch_assessment_mode    = var.cluster_patch_assessment_mode
