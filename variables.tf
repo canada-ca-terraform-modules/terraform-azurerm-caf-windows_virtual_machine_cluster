@@ -31,7 +31,7 @@ variable "subnet" {
 variable "use_nic_nsg" {
   description = "Should an NSG be created for the VM nic"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "cluster_members" {

@@ -115,7 +115,7 @@ run "data_managed_disk_type_wired" {
 run "use_nic_nsg_wired" {
   command = plan
   variables {
-    use_nic_nsg = false
+    use_nic_nsg = true
     cluster_members = {
       m1 = {
         nic_ip_configuration = {
@@ -129,5 +129,24 @@ run "use_nic_nsg_wired" {
   assert {
     condition     = length(module.VMs) == 1
     error_message = "Plan must succeed with use_nic_nsg wired through to the child module"
+  }
+}
+
+run "use_nic_nsg_defaults_false" {
+  command = plan
+  variables {
+    cluster_members = {
+      m1 = {
+        nic_ip_configuration = {
+          private_ip_address            = [null]
+          private_ip_address_allocation = ["Dynamic"]
+        }
+      }
+    }
+  }
+
+  assert {
+    condition     = length(module.VMs) == 1
+    error_message = "Plan must succeed with the default use_nic_nsg value"
   }
 }

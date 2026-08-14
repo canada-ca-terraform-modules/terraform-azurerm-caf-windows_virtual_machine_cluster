@@ -8,12 +8,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - `providers.tf` pinning `azurerm ~> 5.0` (`required_version >= 1.9`) - none existed before this upgrade.
-- Pass-through variables for the child `windows_virtual_machine` module's arguments: `use_nic_nsg`, `data_managed_disk_type` (previously declared but never wired).
+- Pass-through variables for the child `windows_virtual_machine` module's arguments: `use_nic_nsg` (default `false`, matching the child module's own default), `data_managed_disk_type` (previously declared but never wired).
 - Pattern 12 name overrides:
   - `as_name` (top-level) overrides the auto-generated availability set name.
   - `lb.lb_name`, `lb.frontend_name`, `lb.backend_pool_name` override the auto-generated loadbalancer/frontend/backend-pool names; per-probe/per-rule `name` key overrides each probe/rule name.
 - `.tflint.hcl` (`call_module_type = "local"`), `.gitattributes` (`eol=lf`), `.github/workflows/terraform-ci.yml`, `.github/workflows/documentation.yml`, `.github/workflows/release.yml`, `tests/*.tftest.hcl`.
-- `sensitive = true` on the `VMs` and `availability_set` outputs (both expose full resource/module objects).
+- `sensitive = true` on the `VMs` output (exposes the full child module object, including sensitive VM/NIC attributes).
 - `ESLZ/windows_virtual_machine_cluster.tf` + `ESLZ/windows_virtual_machine_cluster.tfvars` - the module block and commented example L2 callers copy into their blueprint (for_each over `windows_virtual_machine_clusters`, looking up `resource_groups`/`subnets` by key). `ESLZ/.tflint.hcl` disables `terraform_required_version`/`terraform_required_providers` for that directory only.
 
 ### Changed
@@ -30,10 +30,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `admin_password` variable marked `sensitive = true` (was previously plaintext-visible in plan/apply output).
 - `azurerm_lb_rule`'s `floating_ip_enabled`/`tcp_reset_enabled` now read via `try(..., null)` instead of a bare `each.value.*` reference, so a caller's `lb.rules.*` entry omitting either key no longer crashes the plan.
 - `platform_fault_domain_count`/`platform_update_domain_count` retyped from `string` to `number` (defaults `2`/`3`) to match the provider schema and remove reliance on implicit string-to-number coercion.
+- `use_nic_nsg` default corrected to `false` (was mistakenly set to `true` during development) so existing callers who omit it do not get a new NSG and NIC-NSG association created on upgrade.
+- `availability_set` output is no longer marked `sensitive = true`; the resource contains no secrets (name, IDs, fault/update domain counts) and marking it sensitive broke existing callers who re-export or reference it.
+- `ESLZ/windows_virtual_machine_cluster.tf` no longer passes `null` for `storage_image_reference`/`storage_os_disk` when a caller omits them; it now falls back to the same default objects declared on the root module's variables, so the checked-in minimal example plans successfully instead of failing with "Attempt to get attribute from null value".
+- `tests/upgrade_compat.tftest.hcl` rewritten to assert on the actual variable defaults consumed by downstream resources (e.g. `use_nic_nsg == false`), so a future default-value regression fails a test instead of shipping silently; the previous version only compared stable names/values and could not have caught the `use_nic_nsg` regression above.
 
 ### Notes
 
 - This module now adopts the `ESLZ/<resource>.tf` wrapper convention (`ESLZ/windows_virtual_machine_cluster.tf`). `release.yml` sources its version from that file's own `?ref=vX.Y.Z`.
 - Major version bump (not minor) because this upgrade adds the module's first `required_providers`/`required_version` floor - the first hard version constraint can break a consumer's existing Terraform/provider install even though no resource argument itself broke compatibility.
-- No backward-compat breaks: every existing `cluster_members`/`lb` tfvars shape continues to produce the same plan.
+- Every existing `cluster_members`/`lb` tfvars shape continues to produce the same plan, including the `use_nic_nsg` default fix above.
 - The child `windows_virtual_machine` module (v3.1.0) does not yet expose `identity`, `secure_boot_enabled`, `vtpm_enabled`, `user_data`, `public_ip_zones`, or per-instance name overrides (`vm_name`, `nic_name`, etc.) - unlike its linux sibling. These will be available when the child module adds them in a future release.

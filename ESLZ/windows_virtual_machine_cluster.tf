@@ -54,14 +54,19 @@ module "windows_virtual_machine_cluster" {
   admin_password = try(each.value.admin_password, null)
 
   # Compute / image
-  vm_size                 = each.value.vm_size
-  storage_image_reference = try(each.value.storage_image_reference, null)
-  plan                    = try(each.value.plan, null)
-  zone                    = try(each.value.zone, null)
-  priority                = try(each.value.priority, "Regular")
-  license_type            = try(each.value.license_type, null)
-  custom_data             = try(each.value.custom_data, null)
-  ultra_ssd_enabled       = try(each.value.ultra_ssd_enabled, false)
+  vm_size = each.value.vm_size
+  storage_image_reference = try(each.value.storage_image_reference, {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-Datacenter"
+    version   = "latest"
+  })
+  plan              = try(each.value.plan, null)
+  zone              = try(each.value.zone, null)
+  priority          = try(each.value.priority, "Regular")
+  license_type      = try(each.value.license_type, null)
+  custom_data       = try(each.value.custom_data, null)
+  ultra_ssd_enabled = try(each.value.ultra_ssd_enabled, false)
 
   # Windows patching
   cluster_enable_automatic_updates = try(each.value.cluster_enable_automatic_updates, true)
@@ -69,13 +74,17 @@ module "windows_virtual_machine_cluster" {
   cluster_patch_assessment_mode    = try(each.value.cluster_patch_assessment_mode, null)
 
   # Disks
-  storage_os_disk        = try(each.value.storage_os_disk, null)
+  storage_os_disk = try(each.value.storage_os_disk, {
+    caching       = "ReadWrite"
+    create_option = "FromImage"
+    disk_size_gb  = null
+  })
   os_managed_disk_type   = try(each.value.os_managed_disk_type, "Standard_LRS")
   data_managed_disk_type = try(each.value.data_managed_disk_type, "Standard_LRS")
   data_disks             = try(each.value.data_disks, {})
 
   # Networking
-  use_nic_nsg = try(each.value.use_nic_nsg, true)
+  use_nic_nsg = try(each.value.use_nic_nsg, false)
   public_ip   = try(each.value.public_ip, false)
 
   # Availability set
