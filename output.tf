@@ -1,6 +1,7 @@
 output "VMs" {
   description = "The vm module object"
   value       = module.VMs
+  sensitive   = true
 }
 
 output "availability_set" {
