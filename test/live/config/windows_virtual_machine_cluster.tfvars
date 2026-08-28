@@ -9,6 +9,10 @@
 # hits a hard Azure capacity restriction. Dav6 quota has already been
 # provisioned on the sandbox specifically to avoid this.
 #
+# storage_image_reference.sku uses "2022-datacenter-g2" (Gen2), not the
+# plain "2022-Datacenter" Gen1 SKU - Dav6-family sizes are Gen2-only VMs and
+# reject a Gen1 image with "cannot boot Hypervisor Generation '1'".
+#
 # Single cluster member (not two) - live-test only needs to prove the
 # module's common path applies cleanly; a second node doubles live sandbox
 # spend/runtime without adding coverage for this gate.
@@ -23,7 +27,7 @@ vm_size = "Standard_D2as_v6"
 storage_image_reference = {
   publisher = "MicrosoftWindowsServer"
   offer     = "WindowsServer"
-  sku       = "2022-Datacenter"
+  sku       = "2022-datacenter-g2"
   version   = "latest"
 }
 
