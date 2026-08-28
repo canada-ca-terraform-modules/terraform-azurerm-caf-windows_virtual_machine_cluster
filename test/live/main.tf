@@ -1,3 +1,4 @@
+# Wired to .github/workflows/live-test.yml's per-PR live-infra CI gate.
 terraform {
   required_version = ">= 1.9"
   required_providers {
